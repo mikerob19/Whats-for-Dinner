@@ -58,6 +58,28 @@ select option{background:#1a0533}
       <h3 style="font-family:'Fredoka One';font-size:18px;margin-bottom:10px">🗳️ Family Suggestions</h3>
       <div id="suggestions-list"></div>
     </div>
+
+    <!-- NUDGE SECTION -->
+    <div style="margin-top:24px">
+      <h3 style="font-family:'Fredoka One';font-size:18px;margin-bottom:10px">📣 Nudge the Family</h3>
+      <div class="card" style="margin-bottom:0">
+        <p style="font-size:13px;opacity:0.6;margin-bottom:12px">Send a message to get everyone involved!</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;width:100%;text-align:left;padding:12px 16px;border-radius:14px;font-size:14px" onclick="nudge('dinner')">
+            🍽️ "What do you want for dinner tonight?"
+          </button>
+          <button class="btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;width:100%;text-align:left;padding:12px 16px;border-radius:14px;font-size:14px" onclick="nudge('plan')">
+            📅 "Come pick your dinners for the week!"
+          </button>
+          <button class="btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;width:100%;text-align:left;padding:12px 16px;border-radius:14px;font-size:14px" onclick="nudge('shop')">
+            🛒 "Add what we need to the shopping list!"
+          </button>
+          <button class="btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;width:100%;text-align:left;padding:12px 16px;border-radius:14px;font-size:14px" onclick="nudge('custom')">
+            ✏️ Send a custom message...
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- IDEAS -->
@@ -252,6 +274,25 @@ function addShopItem(){
 function autoFill(){
   Object.values(week).filter(Boolean).forEach(m=>shopping.push({item:`Ingredients for ${m.n}`,checked:false}));
   renderShopping();
+}
+
+const APP_URL='https://whats-for-dinner-nine.vercel.app';
+const MESSAGES={
+  dinner:`🍽️ Hey! What do you want for dinner tonight? Open the app and pick something or make a suggestion! ${APP_URL}`,
+  plan:`📅 Hey fam! Time to plan dinners for the week. Open the app and pick your meals! ${APP_URL}`,
+  shop:`🛒 Heading to the store soon! Add anything we need to the shopping list: ${APP_URL}`,
+};
+
+function nudge(type){
+  let msg;
+  if(type==='custom'){
+    const custom=prompt('Type your message:');
+    if(!custom)return;
+    msg=custom+'\n\n👉 '+APP_URL;
+  } else {
+    msg=MESSAGES[type];
+  }
+  window.open('sms:?body='+encodeURIComponent(msg),'_blank');
 }
 
 render();
