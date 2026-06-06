@@ -63,20 +63,12 @@ select option{background:#1a0533}
     <div style="margin-top:24px">
       <h3 style="font-family:'Fredoka One';font-size:18px;margin-bottom:10px">📣 Nudge the Family</h3>
       <div class="card" style="margin-bottom:0">
-        <p style="font-size:13px;opacity:0.6;margin-bottom:12px">Send a message to get everyone involved!</p>
+        <div id="nudge-recipients" style="margin-bottom:12px"></div>
         <div style="display:flex;flex-direction:column;gap:8px">
-          <button class="btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;width:100%;text-align:left;padding:12px 16px;border-radius:14px;font-size:14px" onclick="nudge('dinner')">
-            🍽️ "What do you want for dinner tonight?"
-          </button>
-          <button class="btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;width:100%;text-align:left;padding:12px 16px;border-radius:14px;font-size:14px" onclick="nudge('plan')">
-            📅 "Come pick your dinners for the week!"
-          </button>
-          <button class="btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;width:100%;text-align:left;padding:12px 16px;border-radius:14px;font-size:14px" onclick="nudge('shop')">
-            🛒 "Add what we need to the shopping list!"
-          </button>
-          <button class="btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;width:100%;text-align:left;padding:12px 16px;border-radius:14px;font-size:14px" onclick="nudge('custom')">
-            ✏️ Send a custom message...
-          </button>
+          <button class="btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;width:100%;text-align:left;padding:12px 16px;border-radius:14px;font-size:14px" onclick="nudge('dinner')">🍽️ "What do you want for dinner tonight?"</button>
+          <button class="btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;width:100%;text-align:left;padding:12px 16px;border-radius:14px;font-size:14px" onclick="nudge('plan')">📅 "Come pick your dinners for the week!"</button>
+          <button class="btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;width:100%;text-align:left;padding:12px 16px;border-radius:14px;font-size:14px" onclick="nudge('shop')">🛒 "Add what we need to the shopping list!"</button>
+          <button class="btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;width:100%;text-align:left;padding:12px 16px;border-radius:14px;font-size:14px" onclick="nudge('custom')">✏️ Send a custom message...</button>
         </div>
       </div>
     </div>
@@ -120,11 +112,33 @@ select option{background:#1a0533}
   </div>
 </div>
 
+  <!-- FAMILY SETUP -->
+  <div id="family" class="section">
+    <h2 style="font-family:'Fredoka One';font-size:22px;margin-bottom:4px">Family Setup 👨‍👩‍👧‍👦</h2>
+    <p style="font-size:13px;opacity:0.5;margin-bottom:16px">Add your family's numbers so nudges go straight to them</p>
+    <div id="family-list"></div>
+    <div class="card" style="margin-top:10px">
+      <div style="font-weight:800;margin-bottom:10px;font-size:15px">➕ Add Family Member</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input id="new-member-name" placeholder="Name (e.g. Wife)" style="width:120px;flex-shrink:0"/>
+        <input id="new-member-emoji" placeholder="Emoji 😊" style="width:70px;flex-shrink:0"/>
+      </div>
+      <input id="new-member-phone" placeholder="Phone number" type="tel" style="margin-bottom:8px"/>
+      <button class="btn" style="background:linear-gradient(135deg,#FFD166,#FF6B35);color:#1a0533;width:100%" onclick="addMember()">Add to Family 🎉</button>
+    </div>
+    <div style="margin-top:20px" class="card">
+      <div style="font-weight:800;font-size:14px;margin-bottom:8px;opacity:0.7">ℹ️ How it works</div>
+      <p style="font-size:13px;opacity:0.5;line-height:1.6">Numbers are saved only on this device. When you tap a nudge button, it opens a group text pre-addressed to everyone listed here.</p>
+    </div>
+  </div>
+</div>
+
 <nav class="nav">
   <button class="active" onclick="showSection('planner')"><span class="icon">📅</span>Planner</button>
   <button onclick="showSection('ideas')"><span class="icon">💡</span>Ideas</button>
   <button onclick="showSection('history')"><span class="icon">📖</span>History</button>
   <button onclick="showSection('shopping')"><span class="icon">🛒</span>Shopping</button>
+  <button onclick="showSection('family')"><span class="icon">👨‍👩‍👧‍👦</span>Family</button>
 </nav>
 
 <script>
@@ -166,13 +180,13 @@ function showSection(id){
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.nav button').forEach((b,i)=>{
     b.classList.remove('active');
-    if(['planner','ideas','history','shopping'][i]===id)b.classList.add('active');
+    if(['planner','ideas','history','shopping','family'][i]===id)b.classList.add('active');
   });
   render();
 }
 
 function render(){
-  renderWeek();renderMeals();renderHistory();renderShopping();renderPending();
+  renderWeek();renderMeals();renderHistory();renderShopping();renderPending();renderFamily();
 }
 
 function renderWeek(){
@@ -278,10 +292,54 @@ function autoFill(){
 
 const APP_URL='https://whats-for-dinner-nine.vercel.app';
 const MESSAGES={
-  dinner:`🍽️ Hey! What do you want for dinner tonight? Open the app and pick something or make a suggestion! ${APP_URL}`,
-  plan:`📅 Hey fam! Time to plan dinners for the week. Open the app and pick your meals! ${APP_URL}`,
-  shop:`🛒 Heading to the store soon! Add anything we need to the shopping list: ${APP_URL}`,
+  dinner:'🍽️ Hey! What do you want for dinner tonight? Open the app and pick something or make a suggestion! '+APP_URL,
+  plan:'📅 Hey fam! Time to plan dinners for the week. Open the app and pick your meals! '+APP_URL,
+  shop:'🛒 Heading to the store soon! Add anything we need to the shopping list: '+APP_URL,
 };
+
+// Load family from localStorage
+let familyMembers=JSON.parse(localStorage.getItem('wfd-family')||'[]');
+
+function saveFamilyMembers(){localStorage.setItem('wfd-family',JSON.stringify(familyMembers));}
+
+function addMember(){
+  const name=document.getElementById('new-member-name').value.trim();
+  const emoji=document.getElementById('new-member-emoji').value.trim()||'👤';
+  const phone=document.getElementById('new-member-phone').value.trim().replace(/\D/g,'');
+  if(!name||!phone){alert('Please enter a name and phone number');return;}
+  familyMembers.push({name,emoji,phone});
+  saveFamilyMembers();
+  document.getElementById('new-member-name').value='';
+  document.getElementById('new-member-emoji').value='';
+  document.getElementById('new-member-phone').value='';
+  renderFamily();
+}
+
+function removeMember(i){
+  familyMembers.splice(i,1);
+  saveFamilyMembers();
+  renderFamily();
+}
+
+function renderFamily(){
+  const el=document.getElementById('family-list');
+  const rec=document.getElementById('nudge-recipients');
+  if(!familyMembers.length){
+    el.innerHTML='<div class="card" style="text-align:center;opacity:0.5;padding:24px"><div style="font-size:36px;margin-bottom:8px">👨‍👩‍👧‍👦</div><div>No family members yet.<br/>Add someone below!</div></div>';
+    if(rec)rec.innerHTML='<p style="font-size:13px;opacity:0.5;margin-bottom:4px">No family added yet. <span style="color:#FFD166;cursor:pointer" onclick="showSection(\'family\')">Add family →</span></p>';
+    return;
+  }
+  el.innerHTML=familyMembers.map((m,i)=>`
+    <div class="card" style="display:flex;align-items:center;gap:14px">
+      <div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:24px">${m.emoji}</div>
+      <div style="flex:1">
+        <div style="font-weight:800;font-size:15px">${m.name}</div>
+        <div style="font-size:12px;opacity:0.5">📱 ${m.phone.replace(/(\d{3})(\d{3})(\d{4})/,'($1) $2-$3')}</div>
+      </div>
+      <button class="btn" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);padding:6px 12px;font-size:13px" onclick="removeMember(${i})">✕</button>
+    </div>`).join('');
+  if(rec)rec.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:12px;opacity:0.6">Sending to:</span>'+familyMembers.map(m=>`<span style="font-size:20px" title="${m.name}">${m.emoji}</span>`).join('')+'<span style="font-size:12px;color:#FFD166;cursor:pointer" onclick="showSection(\'family\')">(edit)</span></div>';
+}
 
 function nudge(type){
   let msg;
@@ -292,7 +350,11 @@ function nudge(type){
   } else {
     msg=MESSAGES[type];
   }
-  window.open('sms:?body='+encodeURIComponent(msg),'_blank');
+  const numbers=familyMembers.map(m=>m.phone).join(',');
+  const smsUrl=numbers
+    ? 'sms:'+numbers+'?body='+encodeURIComponent(msg)
+    : 'sms:?body='+encodeURIComponent(msg);
+  window.open(smsUrl,'_blank');
 }
 
 render();
